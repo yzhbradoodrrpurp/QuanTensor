@@ -19,4 +19,26 @@ def funding_rate(tick):
 
     return float(info['data'][0]['fundingRate'])
 
+def premium(tick):
+    """
+    get the SWAP premium of a tick
 
+    :param tick: str, 'BTC-USDT', 'ETH-USDT', ...
+    :return:
+    """
+    public_data_api = okxDataAPI.public_data_api()
+    info = public_data_api.get_premium(instId=tick+'SWAP')
+
+    return float(info['data'][0]['premium'])
+
+def prices(tick):
+    """
+    get the close prices of a tick during a recent period (limit=200)
+
+    :param tick: str, 'BTC-USDT', 'ETH-USDT', ...
+    :return:
+    """
+    market_data_api = okxDataAPI.market_data_api()
+    close_prices = market_data_api.get_candlesticks(instId=tick, bar='3m', limit='200')['data'][4]
+
+    return close_prices

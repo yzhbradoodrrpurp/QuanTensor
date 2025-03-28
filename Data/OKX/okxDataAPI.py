@@ -13,6 +13,14 @@ import os
 import okx
 
 def initialize_api():
+    """
+    >>> api_key, api_secret, passphrase = initialize_api()
+    >>> assert(api_key is not None)
+    >>> assert(api_secret is not None)
+    >>> assert(passphrase is not None)
+
+    :return:
+    """
     api_key = os.getenv('OKXAPIKey')
     api_secret = os.getenv('OKXAPISecret')
     passphrase = os.getenv('OKXAPIPassphrase')
@@ -30,5 +38,3 @@ def public_data_api():
 def account_data_api():
     api_key, api_secret, passphrase = initialize_api()
     return okx.Account.AccountAPI(api_key, api_secret, passphrase)
-
-
