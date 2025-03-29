@@ -5,6 +5,7 @@
 # @Software: PyCharm
 
 import okxDataAPI
+import numpy as np
 
 def funding_rate(tick):
     """
@@ -15,7 +16,7 @@ def funding_rate(tick):
     :return: float, funding rate of the tick
     """
     public_data_api = okxDataAPI.public_data_api()
-    info = public_data_api.get_funding_rate(instId=tick+'SWAP')
+    info = public_data_api.get_funding_rate(instId=tick+'-SWAP')
 
     return float(info['data'][0]['fundingRate'])
 
@@ -27,18 +28,20 @@ def premium(tick):
     :return:
     """
     public_data_api = okxDataAPI.public_data_api()
-    info = public_data_api.get_premium(instId=tick+'SWAP')
+    info = public_data_api.get_funding_rate(instId=tick+'-SWAP')
 
     return float(info['data'][0]['premium'])
 
 def prices(tick):
     """
-    get the close prices of a tick during a recent period (limit=200)
+    get the close prices of a tick during a recent period (limit=60)
 
     :param tick: str, 'BTC-USDT', 'ETH-USDT', ...
     :return:
     """
     market_data_api = okxDataAPI.market_data_api()
-    close_prices = market_data_api.get_candlesticks(instId=tick, bar='3m', limit='200')['data'][4]
+    info = market_data_api.get_candlesticks(instId=tick, bar='1m', limit='60')['data']
+    info = np.array(info, dtype=np.float32)
+    close_prices = info[:, 4]
 
     return close_prices

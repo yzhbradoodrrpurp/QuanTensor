@@ -10,31 +10,22 @@ API-related information in your environment variables
 """
 
 import os
-import okx
 
-def initialize_api():
-    """
-    >>> api_key, api_secret, passphrase = initialize_api()
-    >>> assert(api_key is not None)
-    >>> assert(api_secret is not None)
-    >>> assert(passphrase is not None)
+import okx.MarketData
+import okx.PublicData
+import okx.Account
 
-    :return:
-    """
-    api_key = os.getenv('OKXAPIKey')
-    api_secret = os.getenv('OKXAPISecret')
-    passphrase = os.getenv('OKXAPIPassphrase')
-    return api_key, api_secret, passphrase
+
+api_key = os.getenv('okxAPIKeyData')
+api_secret = os.getenv('okxAPISecretData')
+passphrase = os.getenv('okxPassphraseData')
 
 
 def market_data_api():
-    api_key, api_secret, passphrase = initialize_api()
     return okx.MarketData.MarketAPI(api_key, api_secret, passphrase)
 
 def public_data_api():
-    api_key, api_secret, passphrase = initialize_api()
     return okx.PublicData.PublicAPI(api_key, api_secret, passphrase)
 
 def account_data_api():
-    api_key, api_secret, passphrase = initialize_api()
     return okx.Account.AccountAPI(api_key, api_secret, passphrase)
