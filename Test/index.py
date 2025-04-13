@@ -7,6 +7,7 @@
 import torch
 from torch.utils.data import DataLoader
 
+@torch.no_grad()
 def accuracy(model, dataset):
     model.eval()
     dataloader = DataLoader(dataset, batch_size=32, shuffle=False)
