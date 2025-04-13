@@ -1,7 +1,7 @@
 # -*- coding = utf-8 -*-
 # @Time: 2025/4/13 14:22
 # @Author: Zhihang Yi
-# @File: price.py
+# @File: update.py
 # @Software: PyCharm
 
 import yfinance as yf

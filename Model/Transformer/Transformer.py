@@ -69,8 +69,8 @@ class Transformer(nn.Module):
 if __name__ == '__main__':
     model = Transformer(d_model=4, nhead=4, num_layers=8)
 
-    train_path = '/Users/yzhbradoodrrpurp/Desktop/QuanTensor/Data/BTC/btc_train.csv'
-    eval_path = '/Users/yzhbradoodrrpurp/Desktop/QuanTensor/Data/BTC/btc_val.csv'
+    train_path = '../../Data/BTC/btc_train.csv'
+    eval_path = '../../Data/BTC/btc_val.csv'
 
     X_train, y_train = model.preprocess(train_path)
     X_val, y_val = model.preprocess(eval_path)
@@ -78,12 +78,12 @@ if __name__ == '__main__':
     training_set = MyDataset(X_train, y_train)
     validation_set = MyDataset(X_val, y_val)
 
-    dataloader_train = DataLoader(training_set, batch_size=32)
-    dataloader_val = DataLoader(validation_set, batch_size=32)
+    dataloader_train = DataLoader(training_set, batch_size=32, shuffle=False)
+    dataloader_val = DataLoader(validation_set, batch_size=32, shuffle=False)
 
     model = Transformer(d_model=4, nhead=4, num_layers=12, dtype=torch.float, device='cpu')
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-5, weight_decay=0.96)
+    optimizer = optim.Adam(model.parameters(), lr=2, weight_decay=0.96)
     epochs = range(100)
 
     scheduler = LinearLR(optimizer, start_factor=0.05, total_iters=10)
@@ -103,4 +103,4 @@ if __name__ == '__main__':
 
         print(f'Epoch: {epoch}, Loss: {loss.item():.4f}')
 
-torch.save(model, 'transformer.pth')
+    torch.save(model, 'transformer.pth')
