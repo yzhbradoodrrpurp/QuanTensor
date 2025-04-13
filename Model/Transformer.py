@@ -38,11 +38,26 @@ class Transformer(nn.Module):
 
     def preprocess(self, path):
         csv = pd.read_csv(path)
-        X = csv.loc[2:, ['Close', 'High', 'Low', 'Open']].astype(float)
-        y = csv.loc[2:, 'Signal'].astype(float)
+        data = csv.loc[2:, ['Close', 'High', 'Low', 'Open']].astype(float)
+        label = csv.loc[2:, 'Signal'].astype(float)
 
-        X = torch.tensor(X.values, dtype=self.dtype, device=self.device)
-        y = torch.tensor(y.values, dtype=torch.float, device=self.device)
+        X = torch.tensor(data.values, dtype=self.dtype, device=self.device)  # (N, 4)
+        y = torch.tensor(label.values, dtype=torch.float, device=self.device)  # (N,)
+
+        X_list = []
+        y_list = []
+        window = 36
+        N = X.shape[0]
+
+        for i in range(N - 36):
+            X_sample = X[i:i + window, :]
+            y_sample = y[i:i + window]
+
+            X_list.append(X_sample)
+            y_list.append(y_sample)
+
+        X = torch.stack(X_list, dim=0)  # (N - window, window, 4)
+        y = torch.stack(y_list, dim=0)  # (N - window, window)
 
         return X, y
 
@@ -52,9 +67,9 @@ class Transformer(nn.Module):
         :param X: (N, T, D)
         :return: scores: (N, 2)
         """
-        mask = Transformer.get_mask(X.shape[0], dtype=self.dtype, device=self.device)
-        feature_map = self.encoder(X, mask=mask)
-        scores = self.classifier(feature_map)
+        mask = Transformer.get_mask(X.shape[1], dtype=self.dtype, device=self.device)
+        feature_map = self.encoder(X, mask=mask)  # (N - window, window, D)
+        scores = self.classifier(feature_map)  # (N - window, window, 2)
 
         return scores
 
@@ -69,21 +84,19 @@ class Transformer(nn.Module):
 if __name__ == '__main__':
     model = Transformer(d_model=4, nhead=4, num_layers=8)
 
-    train_path = '../../Data/BTC/btc_train.csv'
-    eval_path = '../../Data/BTC/btc_val.csv'
+    path = '../Data/BTC/btc_train.csv'
 
-    X_train, y_train = model.preprocess(train_path)
-    X_val, y_val = model.preprocess(eval_path)
+    # X_train: (N - window, window, 4)
+    # y_train: (N - window, window)
+    X_train, y_train = model.preprocess(path)
 
     training_set = MyDataset(X_train, y_train)
-    validation_set = MyDataset(X_val, y_val)
 
-    dataloader_train = DataLoader(training_set, batch_size=32, shuffle=False)
-    dataloader_val = DataLoader(validation_set, batch_size=32, shuffle=False)
+    dataloader = DataLoader(training_set, batch_size=32, shuffle=False)
 
     model = Transformer(d_model=4, nhead=4, num_layers=12, dtype=torch.float, device='cpu')
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=2, weight_decay=0.96)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0.96)
     epochs = range(100)
 
     scheduler = LinearLR(optimizer, start_factor=0.05, total_iters=10)
@@ -91,9 +104,13 @@ if __name__ == '__main__':
     model.train()
 
     for epoch in epochs:
-        for X, y in dataloader_train:
-            scores = model(X)
-            loss = criterion(scores, y.to(torch.long))
+        for X, y in dataloader:
+            scores = model(X)  # (batch, window, 2)
+
+            scores_flat = scores.view(-1, 2)  # (batch * window, 2)
+            y_flat = y.view(-1)
+
+            loss = criterion(scores_flat, y_flat.to(torch.long))
 
             optimizer.zero_grad()
             loss.backward()
@@ -101,6 +118,6 @@ if __name__ == '__main__':
 
         scheduler.step()
 
-        print(f'Epoch: {epoch}, Loss: {loss.item():.4f}')
+        torch.save(model.state_dict(), 'transformer.pth')
 
-    torch.save(model, 'transformer.pth')
+        print(f'Epoch: {epoch}, Loss: {loss.item():.4f}')
