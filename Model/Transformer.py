@@ -13,9 +13,33 @@ import pandas as pd
 from Data.Dataset import MyDataset
 
 
+class PositionalEncoding(nn.Module):
+
+    def __init__(self, d_model, window):
+        super().__init__()
+
+        self.d_model = d_model
+        self.window = window
+
+        self.embedding = nn.Embedding(window, d_model)
+
+    def forward(self, X):
+        """
+
+        Args:
+            X: (N, T, D)
+
+        Returns:
+
+        """
+        idx = torch.arange(self.window)  # (T,)
+        position = self.embedding(idx)  # (T, D)
+        return X + position
+
+
 class Transformer(nn.Module):
 
-    def __init__(self, d_model=4, nhead=4, num_layers=8, dtype=torch.float, device='cpu'):
+    def __init__(self, d_model=4, nhead=4, num_layers=8, window=36, dtype=torch.float, device='cpu'):
         super().__init__()
 
         self.d_model = d_model
@@ -23,7 +47,9 @@ class Transformer(nn.Module):
         self.num_layers = num_layers
         self.dtype = dtype
         self.device = device
+        self.window = window
 
+        self.positional_encoding = PositionalEncoding(d_model, window)
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, batch_first=True, dtype=dtype, device=device)
         self.encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_layers)
         self.classifier = nn.Sequential(
@@ -46,7 +72,7 @@ class Transformer(nn.Module):
 
         X_list = []
         y_list = []
-        window = 36
+        window = self.window
         N = X.shape[0]
 
         for i in range(N - 36):
@@ -67,8 +93,9 @@ class Transformer(nn.Module):
         :param X: (N, T, D)
         :return: scores: (N, 2)
         """
-        mask = Transformer.get_mask(X.shape[1], dtype=self.dtype, device=self.device)
-        feature_map = self.encoder(X, mask=mask)  # (N - window, window, D)
+        feature_map = self.positional_encoding(X)
+        mask = Transformer.get_mask(feature_map.shape[1], dtype=self.dtype, device=self.device)
+        feature_map = self.encoder(feature_map, mask=mask)  # (N - window, window, D)
         scores = self.classifier(feature_map)  # (N - window, window, 2)
 
         return scores
