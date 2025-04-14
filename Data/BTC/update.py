@@ -13,7 +13,7 @@ def update():
     get BTC-USD within a defined time period and interval,
     preprocess the data,
     divide the whole dataset into training set and validation set
-    and then store them as 'btc_train.csv' and 'btc_eval.csv'
+    and then store them as 'train.csv' and 'btc_eval.csv'
 
     :return: None
     """
@@ -29,8 +29,8 @@ def update():
     btc_train = btc.iloc[0:train_len]
     btc_val = btc.iloc[train_len:]
 
-    btc_train.to_csv('btc_train.csv')
-    btc_val.to_csv('btc_val.csv')
+    btc_train.to_csv('train.csv')
+    btc_val.to_csv('val.csv')
 
 
 def preprocess(btc):
@@ -46,6 +46,3 @@ def preprocess(btc):
 
 if __name__ == '__main__':
     update()
-
-
-

@@ -111,7 +111,8 @@ class Transformer(nn.Module):
 if __name__ == '__main__':
     model = Transformer(d_model=4, nhead=4, num_layers=8)
 
-    path = '../Data/BTC/btc_train.csv'
+    kind = 'BTC'
+    path = f'../Data/{kind}/train.csv'
 
     # X_train: (N - window, window, 4)
     # y_train: (N - window, window)
@@ -119,11 +120,11 @@ if __name__ == '__main__':
 
     training_set = MyDataset(X_train, y_train)
 
-    dataloader = DataLoader(training_set, batch_size=32, shuffle=False)
+    dataloader = DataLoader(training_set, batch_size=8, shuffle=False)
 
     model = Transformer(d_model=4, nhead=4, num_layers=12, dtype=torch.float, device='cpu')
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0.96)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
     epochs = range(100)
 
     scheduler = LinearLR(optimizer, start_factor=0.05, total_iters=10)
@@ -145,6 +146,6 @@ if __name__ == '__main__':
 
         scheduler.step()
 
-        torch.save(model.state_dict(), 'transformer.pth')
+        torch.save(model.state_dict(), f'transformer4{kind}.pth')
 
         print(f'Epoch: {epoch}, Loss: {loss.item():.4f}')

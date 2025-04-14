@@ -9,12 +9,12 @@ from index import accuracy
 from Data.Dataset import MyDataset
 from Model.Transformer import Transformer
 
-path = '../Model/transformer.pth'
+path = '../Model/transformer4BTC.pth'
 model = Transformer(d_model=4, nhead=4, num_layers=12, dtype=torch.float, device='cpu')
 model.load_state_dict(torch.load(path))
 
-train_path = '../Data/BTC/btc_train.csv'
-eval_path = '../Data/BTC/btc_val.csv'
+train_path = '../Data/BTC/train.csv'
+eval_path = '../Data/BTC/val.csv'
 
 X_train, y_train = model.preprocess(train_path)
 X_val, y_val = model.preprocess(eval_path)
