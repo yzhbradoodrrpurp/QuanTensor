@@ -10,6 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 from torch.optim.lr_scheduler import LinearLR
 import torch.optim as optim
 import pandas as pd
+import Data
 from Data.Dataset import MyDataset
 
 
@@ -66,8 +67,8 @@ class Transformer(nn.Module):
 
     def preprocess(self, path):
         csv = pd.read_csv(path)
-        data = csv.iloc[2:, 1:csv.shape[1] - 1].astype(float)
-        label = csv.iloc[2:, -1].astype(float)
+        data = csv.iloc[1:, :Data.dimension].astype(float)
+        label = csv.iloc[1:, -1].astype(float)
 
         X = torch.tensor(data.values, dtype=self.dtype, device=self.device)  # (N, 15)
         y = torch.tensor(label.values, dtype=torch.float, device=self.device)  # (N,)
@@ -112,8 +113,8 @@ class Transformer(nn.Module):
 
 if __name__ == '__main__':
 
-    model = Transformer(d_model=14, nhead=2, num_layers=8, window=36, dtype=torch.float, device='cpu')
-    model.load_state_dict(torch.load('transformer4BTC.pth'))
+    model = Transformer(d_model=Data.dimension, nhead=2, num_layers=8, window=36, dtype=torch.float, device='cpu')
+    # model.load_state_dict(torch.load('transformer4BTC.pth'))
 
     kind = 'BTC'
     path = f'../Data/{kind}/train.csv'
@@ -122,7 +123,7 @@ if __name__ == '__main__':
     # y_train: (N - window, window)
     X_train, y_train = model.preprocess(path)
     training_set = MyDataset(X_train, y_train)
-    dataloader = DataLoader(training_set, batch_size=24, shuffle=True)
+    dataloader = DataLoader(training_set, batch_size=24, shuffle=False)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-6)

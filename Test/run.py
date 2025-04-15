@@ -6,11 +6,12 @@
 
 import torch
 from index import accuracy
+import Data
 from Data.Dataset import MyDataset
 from Model.Transformer import Transformer
 
 path = '../Model/transformer4BTC.pth'
-model = Transformer(d_model=14, nhead=2, num_layers=8, window=36, dtype=torch.float, device='cpu')
+model = Transformer(d_model=Data.dimension, nhead=2, num_layers=8, window=36, dtype=torch.float, device='cpu')
 model.load_state_dict(torch.load(path))
 
 train_path = '../Data/BTC/train.csv'

@@ -30,8 +30,8 @@ def update():
     ticker_train = ticker.iloc[0:train_len]
     ticker_val = ticker.iloc[train_len:]
 
-    ticker_train.to_csv('train.csv')
-    ticker_val.to_csv('val.csv')
+    ticker_train.to_csv('train.csv', index=False)
+    ticker_val.to_csv('val.csv', index=False)
 
 def add_signal(ticker):
     extent = ticker.loc[:, 'Close'].diff() / ticker.loc[:, 'Close']
@@ -85,6 +85,29 @@ def add_rsi(ticker):
     rsi = 100 - (100 / (1 + rs))
     ticker.loc[:, 'RSI'] = rsi
 
+def add_atr(ticker):
+    high_low = ticker.loc[:, 'High'] - ticker.loc[:, 'Low']
+    high_close = ticker.loc[:, 'High'] - ticker.loc[:, 'Close']
+    low_close = ticker.loc[:, 'Low'] - ticker.loc[:, 'Close']
+
+    true_range = pd.concat([high_low, high_close, low_close], axis=1)
+    true_range = true_range.max(axis=1)
+
+    atr = true_range.rolling(window=14).mean()
+    atr.fillna(true_range.iloc[:14], inplace=True)
+
+    ticker.loc[:, 'ATR'] = atr
+
+def add_so(ticker):
+    low14 = ticker.loc[:, 'Low'].rolling(window=14).min()
+    low14.fillna(ticker.iloc[:14, :].loc[:, 'Low'], inplace=True)
+
+    high14 = ticker.loc[:, 'High'].rolling(window=14).max()
+    high14.fillna(ticker.iloc[:14, :].loc[:, 'High'], inplace=True)
+
+    so = (ticker.loc[:, 'Close'] - low14) / (high14 - low14) * 100
+    ticker.loc[:, 'SO'] = so
+
 def parse_time(ticker):
     datetime_str = ticker.index
     datetime_obj = pd.to_datetime(datetime_str)
@@ -111,11 +134,13 @@ def preprocess(ticker):
 
     add_macd(ticker)
     add_rsi(ticker)
+    add_atr(ticker)
+    add_so(ticker)
 
     parse_time(ticker)
 
     add_signal(ticker)
-    
+
 
 if __name__ == '__main__':
     update()
