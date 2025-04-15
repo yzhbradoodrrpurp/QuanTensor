@@ -18,3 +18,6 @@ interval_str = '1h'
 
 # proportion of training set to validation set
 proportion = 5
+
+# extent
+extent = 0.5 * (10 ** -2)
