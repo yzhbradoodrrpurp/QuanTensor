@@ -16,7 +16,7 @@ def accuracy(model, dataset):
 
     for X, y in dataloader:
         scores = model(X)
-        scores_flat = scores.view(-1, 2)
+        scores_flat = scores.view(-1, 3)
         y_pred_flat = scores_flat.argmax(dim=1)  # (batch,)
         y_flat = y.view(-1)  # (batch,)
 

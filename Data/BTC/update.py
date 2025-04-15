@@ -39,7 +39,9 @@ def add_signal(ticker):
 
     ticker.loc[:, 'Signal'] = 0
     ticker.loc[ticker.loc[:, 'Extent'] >= Data.extent, 'Signal'] = 1
-    ticker.loc[ticker.loc[:, 'Extent'] <= -1 * Data.extent, 'Signal'] = -1
+    ticker.loc[ticker.loc[:, 'Extent'] <= -1 * Data.extent, 'Signal'] = 2
+
+    ticker.drop(columns=['Extent'], inplace=True)
 
 def add_sma8(ticker):
     sma8 = ticker.loc[:, 'Close'].rolling(window=8).mean()
@@ -76,8 +78,8 @@ def add_rsi(ticker):
     gain_avg = gain.rolling(window=14).mean()
     loss_avg = loss.rolling(window=14).mean()
 
-    gain_avg.fillna(gain_avg.iloc[14:28], inplace=True)
-    loss_avg.fillna(loss_avg.iloc[14:28], inplace=True)
+    gain_avg.fillna(gain_avg.iloc[14:28].mean(), inplace=True)
+    loss_avg.fillna(loss_avg.iloc[14:28].mean(), inplace=True)
 
     rs = gain_avg / loss_avg
     rsi = 100 - (100 / (1 + rs))
