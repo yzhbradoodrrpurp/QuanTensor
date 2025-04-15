@@ -125,8 +125,8 @@ if __name__ == '__main__':
     dataloader = DataLoader(training_set, batch_size=24, shuffle=True)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=1e-6, momentum=0.9)
-    scheduler = LinearLR(optimizer, start_factor=0.05, total_iters=10)
+    optimizer = optim.Adam(model.parameters(), lr=1e-6)
+    # scheduler = LinearLR(optimizer, start_factor=0.05, total_iters=10)
     epochs = range(200)
 
     model.train()
@@ -144,7 +144,7 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
-        scheduler.step()
+        # scheduler.step()
 
         torch.save(model.state_dict(), f'transformer4{kind}.pth')
 
