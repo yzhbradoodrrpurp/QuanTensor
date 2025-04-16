@@ -114,7 +114,7 @@ class Transformer(nn.Module):
 if __name__ == '__main__':
 
     model = Transformer(d_model=Data.dimension, nhead=2, num_layers=8, window=36, dtype=torch.float, device='cpu')
-    # model.load_state_dict(torch.load('transformer4BTC.pth'))
+    model.load_state_dict(torch.load('transformer4BTC.pth'))
 
     kind = 'BTC'
     path = f'../Data/{kind}/train.csv'
