@@ -22,4 +22,4 @@ proportion = 5
 # extent to send buy / sell signals
 extent = 0.5 * (10 ** -2)
 
-dimension = 16
+dimension = 28

@@ -113,13 +113,13 @@ class Transformer(nn.Module):
 
 if __name__ == '__main__':
 
-    model = Transformer(d_model=Data.dimension, nhead=2, num_layers=8, window=36, dtype=torch.float, device='cpu')
+    model = Transformer(d_model=Data.dimension, nhead=4, num_layers=12, window=168, dtype=torch.float, device='cpu')
     model.load_state_dict(torch.load('transformer4BTC.pth'))
 
     kind = 'BTC'
     path = f'../Data/{kind}/train.csv'
 
-    # X_train: (N - window, window, 15)
+    # X_train: (N - window, window, d)
     # y_train: (N - window, window)
     X_train, y_train = model.preprocess(path)
     training_set = MyDataset(X_train, y_train)
