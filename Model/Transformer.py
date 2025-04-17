@@ -12,6 +12,7 @@ import torch.optim as optim
 import pandas as pd
 import Data
 from Data.Dataset import MyDataset
+import logging
 
 
 class PositionalEncoding(nn.Module):
@@ -66,6 +67,9 @@ class Transformer(nn.Module):
         )
 
     def preprocess(self, path):
+
+        logging.info(f'Start preprocessing {path}.')
+
         csv = pd.read_csv(path)
         data = csv.iloc[1:, :Data.dimension].astype(float)
         label = csv.iloc[1:, -1].astype(float)
@@ -87,6 +91,8 @@ class Transformer(nn.Module):
 
         X = torch.stack(X_list, dim=0)  # (N - window, window, 15)
         y = torch.stack(y_list, dim=0)  # (N - window, window)
+
+        logging.info(f'Finish preprocessing {path}.')
 
         return X, y
 
@@ -111,10 +117,20 @@ class Transformer(nn.Module):
         return mask
 
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s\t%(levelname)s\t%(message)s',
+    datefmt='%m-%d-%Y %I:%M:%S',
+    handlers=[
+        logging.FileHandler('logs/train.log'),
+        logging.StreamHandler()
+    ]
+)
+
 if __name__ == '__main__':
 
     model = Transformer(d_model=Data.dimension, nhead=4, num_layers=12, window=168, dtype=torch.float, device='cpu')
-    model.load_state_dict(torch.load('transformer4BTC.pth'))
+    # model.load_state_dict(torch.load('transformer4BTC.pth'))
 
     kind = 'BTC'
     path = f'../Data/{kind}/train.csv'
@@ -134,7 +150,7 @@ if __name__ == '__main__':
 
     for epoch in epochs:
         for X, y in dataloader:
-            scores = model(X)  # (batch, window, 14)
+            scores = model(X)  # (batch, window, 3)
 
             scores_flat = scores.view(-1, 3)  # (batch * window, 3)
             y_flat = y.view(-1)
@@ -149,4 +165,4 @@ if __name__ == '__main__':
 
         torch.save(model.state_dict(), f'transformer4{kind}.pth')
 
-        print(f'Epoch: {epoch}, Loss: {loss.item():.4f}')
+        logging.info(f'Epoch: {epoch}, Loss: {loss.item():.4f}')
