@@ -12,9 +12,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-# matplotlib.use('TkAgg')
-
-
 @torch.no_grad()
 def accuracy(model, path):
     """

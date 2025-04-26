@@ -194,7 +194,7 @@ if __name__ == '__main__':
     else:
         raise ValueError('Invalid task.')
 
-    optimizer = optim.Adam(model.parameters(), lr=lr/100)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
     # scheduler = LinearLR(optimizer, start_factor=0.05, total_iters=10)
     epochs = range(200)
 
